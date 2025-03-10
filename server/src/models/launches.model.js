@@ -1,55 +1,92 @@
 const fs = require("fs");
 const path = require("path");
+const launchesDB = require("./launches.mongo");
+const planets = require("./planets.mongo");
 
 const launches = new Map();
+
+const DFAUULT_FLIGHT_NUMBER = 100;
 
 const launch = {
   flightNumber: 100,
   mission: "Ankur's Mission",
   rocket: "Explorer Is1",
   launchDate: new Date("December 21, 2026"),
-  target: "Jupiter",
-  customer: ["Ankur Srivastava", "ISRO"],
+  target: "Kepler-1652 b",
+  customers: ["Ankur Srivastava", "ISRO"],
   upcoming: true,
   success: true,
 };
-launches.set(launch.flightNumber, launch);
+// launches.set(launch.flightNumber, launch);
 
-function existLaunchId(id) {
-  return launches.has(id);
+async function existLaunchId(id) {
+  return await launchesDB.findOne({
+    flightNumber: id,
+  });
 }
 
-function getAllLaunches() {
-  return Array.from(launches.values());
+async function getLatestFlightNumber(id) {
+  const latestLaunch = await launchesDB.findOne().sort("-flightNumber");
+  return latestLaunch.flightNumber ?? DFAUULT_FLIGHT_NUMBER;
 }
 
-function addNewLaunch(currentLaunch) {
-  const lastEntry = [...launches].pop();
-  let lastN = lastEntry[1].flightNumber;
-  lastN++;
-  const tempObj = {
+async function getAllLaunches() {
+  return await launchesDB.find(
+    {},
+    {
+      _id: 0,
+      __v: 0,
+    }
+  );
+}
+
+async function scheduleNewLaunch(currentLaunch) {
+  let lastN = (await getLatestFlightNumber()) + 1;
+
+  const newLaunch = {
     ...currentLaunch,
     flightNumber: lastN,
-    customer: ["Ankur Srivastava", "ISRO"],
+    customers: ["Ankur Srivastava", "ISRO"],
     upcoming: true,
     success: true,
   };
-  launches.set(lastN, tempObj);
+  await saveLaunch(newLaunch);
 }
 
-function deleteLaunchSequence(launchId) {
-  console.log("launchId", launchId);
-  const aborted = launches.get(launchId);
-  aborted.upcoming = false;
-  aborted.success = false;
+async function saveLaunch(currentLaunch) {
+  const findPlanet = await planets.findOne({
+    keplerName: currentLaunch.target,
+  });
+  console.log("findPlanet", findPlanet);
+  if (!findPlanet) {
+    throw new Error("No matching planet was found");
+  }
+  await launchesDB.findOneAndUpdate(
+    {
+      flightNumber: currentLaunch.flightNumber,
+    },
+    currentLaunch,
+    { upsert: true }
+  );
+}
 
-  return aborted;
-  // launches.delete(launchId);
+async function deleteLaunchSequence(launchId) {
+  const aborted = await launchesDB.updateOne(
+    {
+      flightNumber: launchId,
+    },
+    {
+      upcoming: false,
+      success: false,
+    }
+  );
+  console.log("abortedaborted", aborted);
+  return aborted.modifiedCount === 1;
 }
 
 module.exports = {
   existLaunchId,
   getAllLaunches,
-  addNewLaunch,
+  scheduleNewLaunch,
   deleteLaunchSequence,
 };
