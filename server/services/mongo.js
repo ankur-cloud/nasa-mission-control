@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 
-const MONGO_URL = `mongodb+srv://ankur-x:SpFhKXSNTRnxJNmx@node-js-me.zusvi.mongodb.net/sattelite?retryWrites=true&w=majority&appName=node-js-me`;
+require('dotenv').config();
+ 
+const MONGO_URL = process.env.MONGO_URL;
 
 mongoose.connection.once("open", () => {
   console.log("MongoDb konnection ready");

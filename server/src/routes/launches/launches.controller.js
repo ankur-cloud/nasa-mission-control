@@ -1,3 +1,4 @@
+const { getPagination } = require("../../../services/query");
 const {
   existLaunchId,
   getAllLaunches,
@@ -6,7 +7,9 @@ const {
 } = require("../../models/launches.model");
 
 async function httpGetAllLaunches(req, res) {
-  return res.status(200).json(await getAllLaunches());
+  console.log("queryquery", req.query);
+  const { limit, skip } = getPagination(req.query);
+  return res.status(200).json(await getAllLaunches(skip, limit));
 }
 
 async function httpAddNewLaunch(req, res) {
