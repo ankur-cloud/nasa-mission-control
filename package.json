@@ -10,6 +10,7 @@
     "client": "npm start --prefix client",
     "watch": "npm run server & npm run client",
     "deploy": "npm run build --prefix client && npm run start --prefix server",
+    "deploy-watch": "npm run build --prefix client && npm run watch --prefix server",
     "deploy-cluster": "npm run build --prefix client && npm run cluster --prefix server",
     "rem-cluster": "npm run clusterStop --prefix server",
     "test": "npm test --prefix server && npm test --prefix client"

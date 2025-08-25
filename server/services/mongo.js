@@ -7,6 +7,9 @@ const MONGO_URL = process.env.MONGO_URL;
 mongoose.connection.once("open", () => {
   console.log("MongoDb konnection ready");
 });
+
+// mongoose connection is an event emitter 
+// collection made up of one or many documents 
 mongoose.connection.on("error", (err) => {
   console.error("MongoDb konnection error", err);
 });

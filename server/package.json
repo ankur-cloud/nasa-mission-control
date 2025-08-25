@@ -7,8 +7,8 @@
     "test": "jest --detectOpenHandles",
     "tes-watch": "jest --watch",
     "start": "node src/server.js",
-    "watch": "nodemon src/server.js",
-    "cluster": "pm2 start src/server.js -i 2 --log logs/server.log",
+    "watch": "nodemon src/server.js > logs/server.log 2>&1",
+    "cluster": "pm2 start src/server.js -i 4 --log logs/server.log",
     "cluster-reload": "pm2 reload src/server.js",
     "clusterStop": "pm2 delete server"
   },
@@ -21,13 +21,19 @@
   },
   "dependencies": {
     "axios": "^1.8.2",
+    "cookie-session": "^2.1.0",
     "cors": "^2.8.5",
     "csv-parse": "^5.6.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-session": "^1.18.2",
+    "helmet": "^8.0.0",
     "mongoose": "^8.12.1",
     "morgan": "^1.10.0",
-    "pm2": "^5.4.3"
+    "passport": "^0.7.0",
+    "passport-google-oauth": "^2.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "pm2": "^6.0.8"
   },
   "devDependencies": {
     "jest": "^29.7.0",

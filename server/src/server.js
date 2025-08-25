@@ -1,4 +1,7 @@
 const http = require("http");
+const https = require("https");
+const fs = require("fs");
+
 require("dotenv").config();
 
 const { isMainThread, workerData, Worker } = require("worker_threads");
@@ -31,6 +34,15 @@ async function startServer() {
 }
 
 startServer();
-server.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
-});
+
+https
+  .createServer(
+    {
+      key: fs.readFileSync("key.pem"),
+      cert: fs.readFileSync("cert.pem"),
+    },
+    app
+  )
+  .listen(PORT, () => {
+    console.log("listening on port ", PORT);
+  });
